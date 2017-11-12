@@ -34,6 +34,14 @@ class MainActivity : AppCompatActivity() {
             this.showPrev()
         }
 
+        imageButtonSave.setOnClickListener{
+            this.saveChanges()
+        }
+
+        imageButtonAdd.setOnClickListener {
+            this.addImage()
+        }
+
     }
 
     fun updateView(){
@@ -53,6 +61,21 @@ class MainActivity : AppCompatActivity() {
 
     fun showPrev(){
         this.activeIndex = max(this.activeIndex-1, 0)
+        this.updateView()
+    }
+
+    fun saveChanges(){
+        if(this.imageItems.count() > 0 && this.activeIndex >= 0 && this.activeIndex <= this.imageItems.count()) {
+            val imageItem = this.imageItems[activeIndex]
+            imageItem.srcUrl = editTextUrl.text.toString()
+            imageItem.title = editTextTitle.text.toString()
+            this.updateView()
+        }
+    }
+
+    fun addImage(){
+        this.imageItems.add(ImageItem("",""))
+        this.activeIndex = this.imageItems.count() - 1
         this.updateView()
     }
 }
