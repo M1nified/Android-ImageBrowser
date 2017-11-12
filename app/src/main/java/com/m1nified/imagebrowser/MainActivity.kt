@@ -49,7 +49,11 @@ class MainActivity : AppCompatActivity() {
             val imageItem = this.imageItems[activeIndex]
             editTextTitle.setText(imageItem.title)
             editTextUrl.setText(imageItem.srcUrl)
-            DownloadImageTask(imageView).execute(imageItem.srcUrl)
+            if(imageItem.srcUrl != null && imageItem.srcUrl != "") {
+                DownloadImageTask(imageView).execute(imageItem.srcUrl)
+            }else{
+                imageView.setImageDrawable(null)
+            }
             textViewPosition.text = "${this.activeIndex + 1}/${this.imageItems.count()}"
         }
     }
