@@ -1,8 +1,13 @@
 package com.m1nified.imagebrowser
 
+import android.content.Intent
+import android.graphics.Bitmap
 import android.net.Uri
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Environment
+import android.provider.MediaStore
+import android.util.Log
 import android.widget.TextView
 import com.m1nified.helloworld.DownloadImageTask
 import kotlinx.android.synthetic.main.activity_main.*
@@ -42,6 +47,16 @@ class MainActivity : AppCompatActivity() {
             this.addImage()
         }
 
+        imageButtonTakePicture.setOnClickListener {
+            if(this.imageItems.count() > 0 && this.activeIndex >= 0 && this.activeIndex <= this.imageItems.count()) {
+                val imageItem = this.imageItems[activeIndex]
+                if(imageItem.srcUrl == "" && imageItem.image == null ){
+
+                }
+                this.capturePhoto()
+            }
+        }
+
     }
 
     fun updateView(){
@@ -49,7 +64,9 @@ class MainActivity : AppCompatActivity() {
             val imageItem = this.imageItems[activeIndex]
             editTextTitle.setText(imageItem.title)
             editTextUrl.setText(imageItem.srcUrl)
-            if(imageItem.srcUrl != null && imageItem.srcUrl != "") {
+            if(imageItem.image != null){
+                imageView.setImageBitmap(imageItem.image)
+            }else if(imageItem.srcUrl != null && imageItem.srcUrl != "") {
                 DownloadImageTask(imageView).execute(imageItem.srcUrl)
             }else{
                 imageView.setImageDrawable(null)
@@ -81,5 +98,26 @@ class MainActivity : AppCompatActivity() {
         this.imageItems.add(ImageItem("",""))
         this.activeIndex = this.imageItems.count() - 1
         this.updateView()
+    }
+
+    val REQUEST_IMAGE_CAPTURE: Int = 1
+
+    private fun capturePhoto() {
+        val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        if (takePictureIntent.resolveActivity(packageManager) != null) {
+            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
+        Log.d("onActivityResult", requestCode.toString())
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+            val photo: Bitmap = data.getParcelableExtra("data")
+            if(this.imageItems.count() > 0 && this.activeIndex >= 0 && this.activeIndex <= this.imageItems.count()) {
+                val imageItem = this.imageItems[activeIndex]
+                imageItem.image = photo
+                this.updateView()
+            }
+        }
     }
 }
